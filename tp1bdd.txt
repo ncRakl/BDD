@@ -1,0 +1,24 @@
+----- NOTES TP1 -----
+
+L'insert de l'étudiant avec comme groupe 'A6' provoque une erreur
+	=> A6 n'existe pas dans la base groupe
+
+L'erreur provoque un rollback au commit
+
+Dans la 3e séquence, le premier select affiche l'étudiant inséré (tout s'est bien passé avant).
+Ensuite on a une erreur, le commit rollback la transaction et le dernier select n'affiche rien.
+
+
+MULTI :
+	- Les modifications directes se voient sur les autres sessions.
+	- Un Begin transaction va effectuer des modifications locales.
+	- Le commit effectue le changement local sur la base en réseau.
+	- Quand deux modifications sont effectuées en même temps, l'une des deux n'est pas appliquée
+	
+	- Quand on a plusieurs transactions de lancées et qu'on fait une modification sur une ligne dans une session
+	  , les autres sessions sont bloquées en attendant le commit
+
+
+	Sérialisable :
+		- La session en sérialisable ne voit pas les modifications des autrestant qu'elle n'a pas commit
+		- Si elle tente de modifier une valeur qui a été changée pendant son existence, on a une erreur
