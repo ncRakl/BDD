@@ -1,0 +1,87 @@
+##### Exercice 1 #####
+
+PosteTravail
+
+nSérie		typePoste		numSegment
+P1 			wind			130.40.30
+P2 			wind			130.40.30
+P3 			wind serv		130.40.30
+P4			unix T 			130.40.31
+P5			unix T 			130.40.31
+P6			wind serv 		130.40.32
+P7			wind 			130.40.32
+P8			wind 			130.40.32
+P9			unix T 			130.40.31
+P10			unix T 			130.40.31
+P11			unix T 			130.40.31
+P12			wind			130.40.30
+
+Segment
+
+IndIP		nomSeg			long
+130.40.30	ICARE			25
+130.40.31	DEDALE			75
+130.40.32	MINOS			40
+
+1-1
+SELECT IndicatifIP, longueur FROM SEGMENT S join POSTETRAVAIL P on S.IndIP = P.numSegment WHERE P.typePoste = "wind"
+1-2
+SELECT nSérie, typePoste, numSegment FROM POSTETRAVAIL WHERE numSegment in (SELECT indIP from SEGMENT where nomSeg="MINOS")
+
+2-1
+SELECT (PT.Segment).IndIP, (PT.Segment).long FROM PosteTravail PT WHERE PT.typePoste = "wind serv"
+2-2
+SELECT (PT.nSérie), (PT.Segment).IndIP, (PT.typePoste) FROM PosteTravail PT WHERE (PT.Segment).nomSeg="MINOS"
+
+
+
+##### Exercice 2 #####
+
+PosteTravail
+
+nSérie		typePoste		numServeur
+P1 			wind			P3
+P2 			wind			P3
+P3 			wind serv 		null
+P4			unix T 			P5
+P5			unix serv 		null
+P6			wind serv 		null
+P7			wind 			P6
+P8			wind 			P6
+P9			unix T 			P5
+P10			unix T 			P5
+P11			unix T 			P5
+P12			wind			P3
+
+1-1
+SELECT nSérie, typePoste FROM PosteTravail WHERE nSérie=(SELECT numServeur FROM PosteTravail WHERE nSérie = "P1")
+1-2
+SELECT P.nSérie, P.typePoste FROM PosteTravail P JOIN PosteTravail S on P.numServeur=S.nSérie WHERE (S.typePoste = "wind serv")
+
+Ici on remplace la colonne numServeur par des pointeurs vers les postes
+2-1
+SELECT (P.Serveur).nSérie, (P.Serveur).typePoste FROM PosteTravail P WHERE P.nSérie = "P1"
+2-2
+SELECT P.nSérie, P.typePoste FROM PosteTravail P WHERE (P.Serveur).typePoste = "wind serv"
+
+
+##### Exercice 3 #####
+
+Create type tAdmin as
+	(numero char(2),
+	nom varchar(30),
+	age int);
+
+Create type tOrd as
+	(nSérie varchar(3),
+	addrIP varchar(12),
+	admin tAdmin);
+
+Create table administrateur of tAdmin (Primary Key (numero));
+Create table ordinateur of tOrd (Primary Key (nSérie));
+
+Insert into administrateur values ("A1", "Daniel P", 40);
+Insert into ordinateur values ("P4", 130.64.30.1, SELECT A FROM administrateur WHERE numero="A1");
+Insert into ordinateur SELECT "P4", "130.64.30.1", A FROM administrateur WHERE numero="A1";
+
+Update ordinateur set admin = (SELECT A FROM administrateur WHERE numero="A2") WHERE addrIP="130.64.30.1";
